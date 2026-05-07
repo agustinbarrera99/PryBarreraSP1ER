@@ -1,6 +1,6 @@
 ﻿namespace PryBarreraSP1ER
 {
-    partial class Form1
+    partial class frmPrincipal
     {
         /// <summary>
         /// Variable del diseñador necesaria.
@@ -28,7 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmPrincipal));
+            this.tabControl = new System.Windows.Forms.TabControl();
             this.tabEspecialidades = new System.Windows.Forms.TabPage();
             this.btnGuardarEspecialidad = new System.Windows.Forms.Button();
             this.txtNombreEspecialidad = new System.Windows.Forms.TextBox();
@@ -50,23 +51,23 @@
             this.Column2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.cmbEspecialidadConsulta = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.tabControl1.SuspendLayout();
+            this.tabControl.SuspendLayout();
             this.tabEspecialidades.SuspendLayout();
             this.tabMedicos.SuspendLayout();
             this.tabConsulta.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMedicos)).BeginInit();
             this.SuspendLayout();
             // 
-            // tabControl1
+            // tabControl
             // 
-            this.tabControl1.Controls.Add(this.tabEspecialidades);
-            this.tabControl1.Controls.Add(this.tabMedicos);
-            this.tabControl1.Controls.Add(this.tabConsulta);
-            this.tabControl1.Location = new System.Drawing.Point(12, 12);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(502, 280);
-            this.tabControl1.TabIndex = 0;
+            this.tabControl.Controls.Add(this.tabEspecialidades);
+            this.tabControl.Controls.Add(this.tabMedicos);
+            this.tabControl.Controls.Add(this.tabConsulta);
+            this.tabControl.Location = new System.Drawing.Point(12, 12);
+            this.tabControl.Name = "tabControl";
+            this.tabControl.SelectedIndex = 0;
+            this.tabControl.Size = new System.Drawing.Size(502, 280);
+            this.tabControl.TabIndex = 0;
             // 
             // tabEspecialidades
             // 
@@ -138,7 +139,7 @@
             this.tabMedicos.Location = new System.Drawing.Point(4, 22);
             this.tabMedicos.Name = "tabMedicos";
             this.tabMedicos.Padding = new System.Windows.Forms.Padding(3);
-            this.tabMedicos.Size = new System.Drawing.Size(632, 400);
+            this.tabMedicos.Size = new System.Drawing.Size(494, 254);
             this.tabMedicos.TabIndex = 1;
             this.tabMedicos.Text = "Médicos";
             this.tabMedicos.UseVisualStyleBackColor = true;
@@ -268,15 +269,17 @@
             this.label7.TabIndex = 0;
             this.label7.Text = "Especialidad:";
             // 
-            // Form1
+            // frmPrincipal
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(526, 306);
-            this.Controls.Add(this.tabControl1);
-            this.Name = "Form1";
+            this.Controls.Add(this.tabControl);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "frmPrincipal";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gestión de Médicos y Especialidades";
-            this.tabControl1.ResumeLayout(false);
+            this.tabControl.ResumeLayout(false);
             this.tabEspecialidades.ResumeLayout(false);
             this.tabEspecialidades.PerformLayout();
             this.tabMedicos.ResumeLayout(false);
@@ -290,7 +293,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabEspecialidades;
         private System.Windows.Forms.TabPage tabMedicos;
         private System.Windows.Forms.TabPage tabConsulta;
