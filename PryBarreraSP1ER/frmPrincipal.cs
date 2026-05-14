@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace PryBarreraSP1ER
 {
     public partial class frmPrincipal : Form
     {
-        private List<clsEspecialidad> especialidades = new List<clsEspecialidad>();
-        private List<clsMedico> medicos = new List<clsMedico>();
+        // ── Conexión ─────────────────────────────────────────────────────────────
+        // LocalDB: no requiere instalar SQL Server completo.
+        // Si usás SQL Server Express cambiá el Data Source por el nombre de tu instancia,
+        // por ejemplo: Data Source=.\SQLEXPRESS
+        private readonly clsConexion _conexion = new clsConexion(
+           @"Data Source=.\SQLEXPRESS;Initial Catalog=GestionMedicos;Integrated Security=True;");
+
         private bool cargandoCombos = false;
 
         public frmPrincipal()
@@ -16,29 +20,35 @@ namespace PryBarreraSP1ER
             InitializeComponent();
         }
 
+
+        private void frmPrincipal_Load(object sender, EventArgs e)
+        {
+            ActualizarComboBoxEspecialidades();
+        }
+
         private void BtnGuardarEspecialidad_Click(object sender, EventArgs e)
         {
             if (!ValidarCamposEspecialidad(out int idEspecialidad, out string nombre))
                 return;
 
-            if (especialidades.Any(esp => esp.IdEspecialidad == idEspecialidad))
-            {
-                MostrarError($"Ya existe una especialidad con el número {idEspecialidad}.");
-                txtNumeroEspecialidad.Focus();
-                return;
-            }
-
             try
             {
-                clsEspecialidad nuevaEspecialidad = new clsEspecialidad(idEspecialidad, nombre);
-                especialidades.Add(nuevaEspecialidad);
+                clsEspecialidad nueva = new clsEspecialidad(idEspecialidad, nombre);
+
+                if (!nueva.Guardar(_conexion))
+                {
+                    MostrarError($"Ya existe una especialidad con el número {idEspecialidad}.");
+                    txtNumeroEspecialidad.Focus();
+                    return;
+                }
+
                 ActualizarComboBoxEspecialidades();
                 LimpiarCamposEspecialidad();
                 MostrarExito("Especialidad registrada correctamente.");
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError($"Error al guardar la especialidad: {ex.Message}");
             }
         }
 
@@ -84,23 +94,23 @@ namespace PryBarreraSP1ER
             if (!ValidarCamposMedico(out int matricula, out string nombre, out clsEspecialidad especialidad))
                 return;
 
-            if (medicos.Any(m => m.Matricula == matricula))
-            {
-                MostrarError($"Ya existe un médico con la matrícula {matricula}.");
-                txtMatricula.Focus();
-                return;
-            }
-
             try
             {
-                clsMedico nuevoMedico = new clsMedico(matricula, nombre, especialidad);
-                medicos.Add(nuevoMedico);
+                clsMedico nuevo = new clsMedico(matricula, nombre, especialidad);
+
+                if (!nuevo.Guardar(_conexion))
+                {
+                    MostrarError($"Ya existe un médico con la matrícula {matricula}.");
+                    txtMatricula.Focus();
+                    return;
+                }
+
                 LimpiarCamposMedico();
                 MostrarExito("Médico registrado correctamente.");
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                MostrarError(ex.Message);
+                MostrarError($"Error al guardar el médico: {ex.Message}");
             }
         }
 
@@ -158,39 +168,55 @@ namespace PryBarreraSP1ER
 
             dgvMedicos.Rows.Clear();
 
-            clsEspecialidad especialidadSeleccionada = cmbEspecialidadConsulta.SelectedItem as clsEspecialidad;
-            if (especialidadSeleccionada == null)
-                return;
+            clsEspecialidad esp = cmbEspecialidadConsulta.SelectedItem as clsEspecialidad;
+            if (esp == null) return;
 
-            List<clsMedico> medicosFiltrados = medicos
-                .Where(m => m.Especialidad != null && m.Especialidad.IdEspecialidad == especialidadSeleccionada.IdEspecialidad)
-                .OrderBy(m => m.Nombre)
-                .ToList();
+            try
+            {
+                List<clsMedico> medicos = clsMedico.ObtenerPorEspecialidad(_conexion, esp.IdEspecialidad);
 
-            foreach (clsMedico medico in medicosFiltrados)
-                dgvMedicos.Rows.Add(medico.Matricula, medico.Nombre);
+                foreach (clsMedico m in medicos)
+                    dgvMedicos.Rows.Add(m.Matricula, m.Nombre);
 
-            if (medicosFiltrados.Count == 0)
-                MostrarAdvertencia("No hay médicos registrados para la especialidad seleccionada.");
+                if (medicos.Count == 0)
+                    MostrarAdvertencia("No hay médicos registrados para la especialidad seleccionada.");
+            }
+            catch (Exception ex)
+            {
+                MostrarError($"Error al consultar médicos: {ex.Message}");
+            }
         }
 
         private void ActualizarComboBoxEspecialidades()
         {
-            ActualizarCombo(cmbEspecialidadMedico);
-            ActualizarCombo(cmbEspecialidadConsulta);
+            try
+            {
+                List<clsEspecialidad> lista = clsEspecialidad.ObtenerTodas(_conexion);
+                ActualizarCombo(cmbEspecialidadMedico, lista);
+                ActualizarCombo(cmbEspecialidadConsulta, lista);
+            }
+            catch (Exception ex)
+            {
+                MostrarError($"Error al cargar especialidades: {ex.Message}");
+            }
         }
 
-        private void ActualizarCombo(ComboBox combo)
+        private void ActualizarCombo(ComboBox combo, List<clsEspecialidad> lista)
         {
             cargandoCombos = true;
             combo.DataSource = null;
-            combo.DataSource = new List<clsEspecialidad>(especialidades);
+            combo.DataSource = new List<clsEspecialidad>(lista);
             combo.DisplayMember = "Nombre";
             combo.ValueMember = "IdEspecialidad";
             combo.SelectedIndex = -1;
             cargandoCombos = false;
         }
 
+
+        private void frmPrincipal_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            _conexion?.Dispose();
+        }
         private void MostrarError(string mensaje) =>
             MessageBox.Show(mensaje, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 

@@ -275,10 +275,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(526, 306);
             this.Controls.Add(this.tabControl);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
             this.Name = "frmPrincipal";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Gestión de Médicos y Especialidades";
+            this.Load += new System.EventHandler(this.frmPrincipal_Load);
             this.tabControl.ResumeLayout(false);
             this.tabEspecialidades.ResumeLayout(false);
             this.tabEspecialidades.PerformLayout();
